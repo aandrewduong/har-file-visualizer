@@ -34,6 +34,10 @@ jobs:
         run: npm run build
 
       - uses: actions/configure-pages@v5
+        with:
+          # Auto-enable GitHub Pages on first run so a fresh fork doesn't need
+          # a manual Settings → Pages step before the workflow can deploy.
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
