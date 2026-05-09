@@ -2,6 +2,8 @@
 
 A static, browser-only visualizer for [HTTP Archive (.har)](http://www.softwareishard.com/blog/har-12-spec/) files exported from your browser's DevTools. Drop a HAR file in and get a request list, a timing waterfall, summary stats, and per-request details — all parsed locally, nothing uploaded.
 
+**Live site:** <https://aandrewduong.github.io/har-file-visualizer/>
+
 ## Features
 
 - Drag-and-drop or pick a `.har` file
