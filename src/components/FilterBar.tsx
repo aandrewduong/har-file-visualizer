@@ -1,11 +1,7 @@
 import type { ChangeEvent } from "react";
 import type { ParsedHar, RequestCategory } from "../types/har";
 import type { FilterState, StatusBucket } from "../lib/filter";
-import {
-  initialFilters,
-  uniqueCategories,
-  uniqueMethods,
-} from "../lib/filter";
+import { initialFilters } from "../lib/filter";
 import { FILTER_COPY } from "../lib/copy";
 import { LAYOUT, searchInputStyle } from "../lib/layout";
 
@@ -53,8 +49,7 @@ export function FilterBar({
   visibleCount,
   totalCount,
 }: Props) {
-  const methods = uniqueMethods(parsed.entries);
-  const categories = uniqueCategories(parsed.entries);
+  const { methods, categories } = parsed;
 
   const update = (patch: Partial<FilterState>) => {
     onChange({ ...filters, ...patch });

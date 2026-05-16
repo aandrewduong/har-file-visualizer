@@ -1,4 +1,4 @@
-import type { NormalizedEntry, RequestCategory } from "../types/har";
+import type { ParsedHar, RequestCategory } from "../types/har";
 import type { StatusBucket } from "./http";
 import { statusBucket } from "./http";
 
@@ -14,13 +14,12 @@ export interface HarStats {
   errorCount: number;
 }
 
-export function computeStats(entries: NormalizedEntry[]): HarStats {
+export function computeStats(parsed: ParsedHar): HarStats {
+  const { entries, startedAt, endedAt } = parsed;
   let totalTransferBytes = 0;
   let totalResourceBytes = 0;
   let cachedCount = 0;
   let errorCount = 0;
-  let firstStart = Number.POSITIVE_INFINITY;
-  let lastEnd = 0;
 
   const statusCounts: Record<StatusBucket, number> = {
     "2xx": 0,
@@ -36,8 +35,6 @@ export function computeStats(entries: NormalizedEntry[]): HarStats {
     totalResourceBytes += e.resourceSize;
     if (e.fromCache) cachedCount++;
     if (e.hasError) errorCount++;
-    if (e.startedAt < firstStart) firstStart = e.startedAt;
-    if (e.endedAt > lastEnd) lastEnd = e.endedAt;
 
     const bucket = statusBucket(e.status);
     statusCounts[bucket]++;
@@ -48,8 +45,7 @@ export function computeStats(entries: NormalizedEntry[]): HarStats {
     categoryAgg.set(e.category, cur);
   }
 
-  if (!Number.isFinite(firstStart)) firstStart = 0;
-  const wallClockMs = entries.length === 0 ? 0 : Math.max(0, lastEnd - firstStart);
+  const wallClockMs = entries.length === 0 ? 0 : Math.max(0, endedAt - startedAt);
 
   const byCategory = Array.from(categoryAgg.entries())
     .map(([category, agg]) => ({ category, ...agg }))

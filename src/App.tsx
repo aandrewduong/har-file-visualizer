@@ -143,7 +143,7 @@ function Workspace({
 }: WorkspaceProps) {
   const { parsed, fileName } = loaded;
 
-  const stats = useMemo(() => computeStats(parsed.entries), [parsed.entries]);
+  const stats = useMemo(() => computeStats(parsed), [parsed]);
 
   const filtered = useMemo(
     () => applyFilters(parsed.entries, filters),
@@ -154,8 +154,8 @@ function Workspace({
 
   const selectedEntry = useMemo(() => {
     if (selectedId == null) return null;
-    return parsed.entries.find((e) => e.id === selectedId) ?? null;
-  }, [parsed.entries, selectedId]);
+    return parsed.entryById.get(selectedId) ?? null;
+  }, [parsed.entryById, selectedId]);
 
   const windowMs = parsed.endedAt - parsed.startedAt;
 

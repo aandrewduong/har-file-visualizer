@@ -1,8 +1,6 @@
-import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import type { NormalizedEntry } from "../types/har";
 import type { SortKey, SortState } from "../lib/filter";
-import { applySort } from "../lib/filter";
 import {
   formatBytes,
   formatMs,
@@ -45,7 +43,8 @@ export function RequestList({
   selectedId,
   onSelect,
 }: Props) {
-  const sorted = useMemo(() => applySort(entries, sort), [entries, sort]);
+  // Entries arrive already sorted from the parent — don't re-sort.
+  const sorted = entries;
 
   const handleHeaderClick = (key: SortKey) => {
     if (sort.key === key) {

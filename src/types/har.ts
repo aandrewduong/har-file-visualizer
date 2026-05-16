@@ -234,4 +234,10 @@ export interface ParsedHar {
   startedAt: number;
   /** Latest endedAt across entries, in epoch ms. */
   endedAt: number;
+  /** O(1) lookup from NormalizedEntry.id to entry. */
+  entryById: Map<number, NormalizedEntry>;
+  /** Sorted, deduped HTTP methods present in the file (for filter UI). */
+  methods: string[];
+  /** Sorted, deduped categories present in the file (for filter UI). */
+  categories: RequestCategory[];
 }

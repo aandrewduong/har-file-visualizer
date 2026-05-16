@@ -8,6 +8,10 @@ import type {
 } from "../types/har";
 import { HTTP_STATUS, isErrorStatus } from "./http";
 
+function sortedFromSet<T extends string>(values: Set<T>): T[] {
+  return Array.from(values).sort() as T[];
+}
+
 export class HarParseError extends Error {
   constructor(message: string, options?: { cause?: unknown }) {
     super(message, options);
@@ -31,14 +35,28 @@ export function parseHarText(text: string): ParsedHar {
 }
 
 export function parseHar(file: HarFile): ParsedHar {
-  const entries = file.log.entries.map((e, idx) => normalizeEntry(e, idx));
+  const rawEntries = file.log.entries;
+  const entries: NormalizedEntry[] = new Array(rawEntries.length);
+  const entryById = new Map<number, NormalizedEntry>();
+  const methodSet = new Set<string>();
+  const categorySet = new Set<RequestCategory>();
 
   let startedAt = Number.POSITIVE_INFINITY;
   let endedAt = 0;
-  for (const e of entries) {
-    if (e.startedAt < startedAt) startedAt = e.startedAt;
-    if (e.endedAt > endedAt) endedAt = e.endedAt;
+
+  // Single pass: normalize each entry and fold all derived structures
+  // (id index, method/category sets, time window) so downstream consumers
+  // — FilterBar, selection lookup, stats — don't have to rescan.
+  for (let i = 0; i < rawEntries.length; i++) {
+    const entry = normalizeEntry(rawEntries[i], i);
+    entries[i] = entry;
+    entryById.set(entry.id, entry);
+    methodSet.add(entry.method);
+    categorySet.add(entry.category);
+    if (entry.startedAt < startedAt) startedAt = entry.startedAt;
+    if (entry.endedAt > endedAt) endedAt = entry.endedAt;
   }
+
   if (!Number.isFinite(startedAt)) startedAt = 0;
 
   return {
@@ -47,6 +65,9 @@ export function parseHar(file: HarFile): ParsedHar {
     pages: file.log.pages ?? [],
     startedAt,
     endedAt,
+    entryById,
+    methods: sortedFromSet(methodSet),
+    categories: sortedFromSet(categorySet),
   };
 }
 

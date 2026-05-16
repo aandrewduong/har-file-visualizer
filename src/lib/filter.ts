@@ -2,6 +2,9 @@ import type { NormalizedEntry, RequestCategory } from "../types/har";
 import type { StatusBucket as HttpStatusBucket } from "./http";
 import { statusBucket } from "./http";
 
+// Note: `methods` and `categories` are precomputed once in parseHar (har-parser.ts)
+// and read off ParsedHar — no need for a per-render scan helper here.
+
 export type StatusBucket = HttpStatusBucket | "all";
 
 export interface FilterState {
@@ -80,12 +83,3 @@ export function applySort(
   return copy;
 }
 
-export function uniqueMethods(entries: NormalizedEntry[]): string[] {
-  return Array.from(new Set(entries.map((e) => e.method))).sort();
-}
-
-export function uniqueCategories(
-  entries: NormalizedEntry[],
-): RequestCategory[] {
-  return Array.from(new Set(entries.map((e) => e.category))).sort();
-}
